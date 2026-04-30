@@ -5,9 +5,8 @@ st.set_page_config(page_title="AI Yassin Bot", page_icon="🤖")
 st.title("🤖 AI Yassin Bot")
 st.caption("أهلاً بك في موقع ياسين للذكاء الاصطناعي")
 
-"AIzaSyC0-1kyXjn4TMC--olkmbhee2kW9ntOjzw"
-genai.configure(api_key="AIzaSyC0-1kyXjn4TMC--olkmbhee2kW9ntOjzw") 
-
+import streamlit as st
+api_key = st.secrets["GENAI_API_KEY"]
 if "model_name" not in st.session_state:
     for m in genai.list_models():
         if 'generateContent' in m.supported_generation_methods:
