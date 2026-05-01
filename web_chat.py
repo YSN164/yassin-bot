@@ -1,5 +1,5 @@
 import streamlit as st
-from google import genai
+import google.generativeai as genai
 import time
 
 # 1. إعداد الصفحة
@@ -22,7 +22,7 @@ st.markdown("""
 
 # 3. العنوان والجانب الجانبي
 st.title("🤖 AI Yassin Bot")
-st.caption("نسخة احترافية شغالة 🔥")
+st.caption("النسخة النهائية المستقرة 🔥")
 
 with st.sidebar:
     st.header("⚙️ التحكم")
@@ -32,10 +32,12 @@ with st.sidebar:
     st.markdown("---")
     st.write("Made by Yassin 😎")
 
-# 4. إعداد الـ API والـ Client
+# 4. إعداد الـ API والـ الموديل (رجعنا للمكتبة المستقرة لضمان التشغيل)
 if "GENAI_API_KEY" in st.secrets:
     api_key = st.secrets["GENAI_API_KEY"]
-    client = genai.Client(api_key=api_key) 
+    genai.configure(api_key=api_key)
+    # استخدام الموديل المستقر مباشرة
+    model = genai.GenerativeModel('gemini-1.5-flash')
 else:
     st.error("حط API KEY في Secrets")
     st.stop()
@@ -61,12 +63,8 @@ if prompt := st.chat_input("اكتب رسالتك هنا..."):
         message_placeholder = st.empty()
 
         try:
-            # ✅ التعديل الذهبي: استخدمنا gemini-1.5-flash لضمان العمل على النسخة المستقرة
-            response = client.models.generate_content(
-                model="gemini-1.5-flash", 
-                contents=prompt
-            )
-
+            # ✅ الطريقة المضمونة للرد
+            response = model.generate_content(prompt)
             full_text = response.text if response.text else "مفيش رد من الموديل 😅"
 
             # تأثير الكتابة التدريجي
@@ -83,5 +81,4 @@ if prompt := st.chat_input("اكتب رسالتك هنا..."):
             })
 
         except Exception as e:
-            # عرض الخطأ بشكل مبسط
             st.error(f"❌ حصل خطأ: {e}")
