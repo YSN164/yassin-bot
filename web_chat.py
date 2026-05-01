@@ -43,7 +43,10 @@ else:
     st.stop()
 
 # ====== CLIENT ======
-client = genai.Client(api_key=api_key)
+response = client.models.generate_content(
+    model="gemini-1.0-pro",
+    contents=prompt
+)
 
 # ====== MEMORY ======
 if "messages" not in st.session_state:
