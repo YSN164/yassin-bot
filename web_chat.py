@@ -32,10 +32,9 @@ with st.sidebar:
     st.markdown("---")
     st.write("Made by Yassin 😎")
 
-# 4. إعداد الـ API والـ Client (الترتيب هنا هو السر)
+# 4. إعداد الـ API والـ Client
 if "GENAI_API_KEY" in st.secrets:
     api_key = st.secrets["GENAI_API_KEY"]
-    # تعريف الـ client بره أي if عشان الـ NameError يختفي
     client = genai.Client(api_key=api_key) 
 else:
     st.error("حط API KEY في Secrets")
@@ -62,9 +61,9 @@ if prompt := st.chat_input("اكتب رسالتك هنا..."):
         message_placeholder = st.empty()
 
         try:
-            # مناداة الموديل بالطريقة الصحيحة للـ SDK الجديد
+            # ✅ التعديل الذهبي: استخدمنا gemini-1.5-flash لضمان العمل على النسخة المستقرة
             response = client.models.generate_content(
-                model="gemini-1.5-flash-latest",
+                model="gemini-1.5-flash", 
                 contents=prompt
             )
 
@@ -84,4 +83,5 @@ if prompt := st.chat_input("اكتب رسالتك هنا..."):
             })
 
         except Exception as e:
+            # عرض الخطأ بشكل مبسط
             st.error(f"❌ حصل خطأ: {e}")
