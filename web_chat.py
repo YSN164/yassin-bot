@@ -3,82 +3,44 @@ import google.generativeai as genai
 import time
 
 # 1. إعداد الصفحة
-st.set_page_config(
-    page_title="AI Yassin Bot",
-    page_icon="🤖",
-    layout="centered"
-)
+st.set_page_config(page_title="AI Yassin Bot", page_icon="🤖")
 
-# 2. تصميم الواجهة (CSS)
-st.markdown("""
-    <style>
-    .stChatMessage {
-        border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# 3. العنوان والجانب الجانبي
-st.title("🤖 AI Yassin Bot")
-st.caption("النسخة النهائية المستقرة 🔥")
-
-with st.sidebar:
-    st.header("⚙️ التحكم")
-    if st.button("🗑️ مسح الشات"):
-        st.session_state.messages = []
-        st.rerun()
-    st.markdown("---")
-    st.write("Made by Yassin 😎")
-
-# 4. إعداد الـ API والـ الموديل (رجعنا للمكتبة المستقرة لضمان التشغيل)
+# 2. إعداد الـ API (تأكد إن الكود ده شغال)
 if "GENAI_API_KEY" in st.secrets:
-    api_key = st.secrets["GENAI_API_KEY"]
-    genai.configure(api_key=api_key)
-    # استخدام الموديل المستقر مباشرة
+    genai.configure(api_key=st.secrets["GENAI_API_KEY"])
+    # الموديل هنا بدون إصدارات بيتا
     model = genai.GenerativeModel('gemini-1.5-flash')
 else:
-    st.error("حط API KEY في Secrets")
+    st.error("API Key missing!")
     st.stop()
 
-# 5. الذاكرة (Memory)
+st.title("🤖 AI Yassin Bot")
+
+# 3. الذاكرة
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 6. عرض الرسائل القديمة
+# 4. عرض الشات
 for msg in st.session_state.messages:
-    avatar = "🧑" if msg["role"] == "user" else "🤖"
-    with st.chat_message(msg["role"], avatar=avatar):
+    with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# 7. منطقة الإدخال والرد
-if prompt := st.chat_input("اكتب رسالتك هنا..."):
+# 5. منطقة الإدخال
+if prompt := st.chat_input("اكتب هنا..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-
-    with st.chat_message("user", avatar="🧑"):
+    with st.chat_message("user"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar="🤖"):
-        message_placeholder = st.empty()
-
+    with st.chat_message("assistant"):
         try:
-            # ✅ الطريقة المضمونة للرد
+            # الحركة دي بتجبره يشتغل بعيداً عن الـ v1beta
             response = model.generate_content(prompt)
-            full_text = response.text if response.text else "مفيش رد من الموديل 😅"
-
-            # تأثير الكتابة التدريجي
-            displayed = ""
-            for char in full_text:
-                displayed += char
-                message_placeholder.markdown(displayed + "▌")
-                time.sleep(0.01)
-            message_placeholder.markdown(full_text)
-
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": full_text
-            })
-
+            
+            if response.text:
+                full_text = response.text
+                st.markdown(full_text)
+                st.session_state.messages.append({"role": "assistant", "content": full_text})
+            else:
+                st.error("الموديل مرفعش رد.")
         except Exception as e:
-            st.error(f"❌ حصل خطأ: {e}")
+            st.error(f"Error: {e}")
