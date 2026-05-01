@@ -43,9 +43,10 @@ else:
     st.stop()
 
 # ====== CLIENT ======
-response = client.(models.generate_content)
-    model="gemini-1.0-pro",
-    contents=prompt
+response = client.models.generate_content(
+                model="gemini-1.5-flash-latest",
+                contents=prompt
+            )
 
 # ====== MEMORY ======
 if "messages" not in st.session_state:
